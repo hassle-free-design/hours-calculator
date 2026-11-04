@@ -72,7 +72,10 @@ $(function() {
 
             // Supports:
             // 4h, 30m, 30min, 4h30m, 4h 30m, 1.5h, 1.25h
-            const match = line.match(/^(?:(\d+(?:\.\d+)?)\s*h)?\s*(?:(\d+)\s*(?:min|m))?$/i);
+            // const match = line.match(/^(?:(\d+(?:\.\d+)?)\s*h)?\s*(?:(\d+)\s*(?:min|m))?$/i);
+			
+			// new regex this also allows: Something (5h 15m)
+            const match = line.match(/(?:^|\()(?:(\d+(?:\.\d+)?)\s*h)?\s*(?:(\d+)\s*(?:min|m))?\)?$/i);
 
             if (!match || (!match[1] && !match[2])) {
                 errors.push('Line ' + (index + 1) + ': ' + $('<div>').text(line).html());
