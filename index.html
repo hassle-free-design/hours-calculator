@@ -160,7 +160,7 @@ $(function() {
             const decimalHours = entryMinutes / 60;
             const cost = decimalHours * tariff;
 
-            copyLines.push(description + ': ' + formatNumber(cost) + ' ' + currency + ',');
+            copyLines.push(description + ': ' + formatNumber(cost) + ' ' + currency);
 
             totalMinutes += entryMinutes;
             totalCost += cost;
