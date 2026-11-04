@@ -21,9 +21,16 @@
             placeholder="30m&#10;4h&#10;1h 45m&#10;Something (5h 15m)&#10;Something else (21h 30m)"></textarea>
     </div>
 
-    <div class="mb-3" style="max-width: 250px;">
-        <label for="tariff" class="form-label">Tariff per hour</label>
-        <input type="number" id="tariff" class="form-control" value="100" min="0" step="0.01">
+    <div class="d-flex flex-wrap gap-3">
+        <div class="mb-3" style="max-width: 250px;">
+            <label for="tariff" class="form-label">Tariff per hour</label>
+            <input type="number" id="tariff" class="form-control" value="100" min="0" step="0.01">
+        </div>
+
+        <div class="mb-3" style="max-width: 150px;">
+            <label for="currency" class="form-label">Currency</label>
+            <input type="text" id="currency" class="form-control" value="EUR" maxlength="5">
+        </div>
     </div>
 
     <div class="d-flex gap-2">
@@ -75,6 +82,10 @@
                         </tfoot>
                     </table>
                 </div>
+
+                <button type="button" id="copyBreakdown" class="btn btn-sm btn-outline-primary mt-3">
+                    Copy lines
+                </button>
             </div>
         </div>
 
@@ -86,6 +97,8 @@
 
 <script>
 $(function() {
+
+    let copyLines = [];
 
     function formatNumber(number) {
         return number.toFixed(2).replace(/\.?0+$/, '');
@@ -102,7 +115,9 @@ $(function() {
 
         const lines = $('#timeInput').val().split(/\r?\n/);
         const tariff = parseFloat($('#tariff').val());
+        const currency = $('#currency').val().trim();
 
+        copyLines = [];
         let totalMinutes = 0;
         let totalCost = 0;
         let validCount = 0;
@@ -140,6 +155,8 @@ $(function() {
             const decimalHours = entryMinutes / 60;
             const cost = decimalHours * tariff;
 
+            copyLines.push(description + ': ' + formatNumber(cost) + ' ' + currency + ',');
+
             totalMinutes += entryMinutes;
             totalCost += cost;
             validCount++;
@@ -149,7 +166,7 @@ $(function() {
                     <td>${$('<div>').text(description).html()}</td>
                     <td class="text-end text-nowrap">${formatTime(entryMinutes)}</td>
                     <td class="text-end">${formatNumber(decimalHours)}h</td>
-                    <td class="text-end">${cost.toFixed(2)}</td>
+                    <td class="text-end text-nowrap">${cost.toFixed(2)} ${$('<div>').text(currency).html()}</td>
                 </tr>
             `;
         });
@@ -169,7 +186,7 @@ $(function() {
 
         $('#totalTime').text(formatTime(totalMinutes));
         $('#totalDecimal').text(formatNumber(totalDecimal) + 'h');
-        $('#totalCost').text(totalCost.toFixed(2));
+        $('#totalCost').text(totalCost.toFixed(2) + ' ' + currency);
 
         if (errors.length) {
             $('#errors').html(
@@ -203,9 +220,20 @@ $(function() {
 
     });
 
+    $('#copyBreakdown').on('click', function() {
+        navigator.clipboard.writeText(copyLines.join('\n')).then(function() {
+            $('#copyBreakdown').text('Copied!');
+
+            setTimeout(function() {
+                $('#copyBreakdown').text('Copy lines');
+            }, 1500);
+        });
+    });
+
     $('#reset').on('click', function() {
         $('#timeInput').val('');
         $('#tariff').val('100');
+        $('#currency').val('EUR');
         $('#results').hide();
         $('#resultRows').empty();
         $('#errors').empty();
